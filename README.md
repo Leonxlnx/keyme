@@ -2,6 +2,8 @@
 
 ![Keyme logo](assets/logo.svg)
 
+![Keyme settings preview](assets/app-preview.svg)
+
 Mechanical keyboard sounds for Windows.
 
 Keyme is a small Windows utility that adds satisfying switch-style audio to every key press. It runs locally, starts with Windows if you want it to, and includes a simple settings app for choosing sounds and volume.
