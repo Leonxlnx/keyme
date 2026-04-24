@@ -20,17 +20,7 @@ Keyme is a small Windows utility that adds satisfying switch-style audio to ever
 
 ## Sound Profiles
 
-- `holy-panda`
-- `red`
-- `alps-blue`
-- `box-navy`
-- `topre`
-- `nk-cream`
-- `buckling-spring`
-- `ink-black`
-- `turquoise-tealios`
-- `alpaca`
-- `typewriter`
+Keyme includes 11 procedural profiles from soft thock to loud vintage click. See [docs/profiles.md](docs/profiles.md).
 
 ## Install
 
