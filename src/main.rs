@@ -2,27 +2,25 @@ use std::{
     env,
     f32::consts::TAU,
     sync::{
+        OnceLock,
         atomic::{AtomicBool, Ordering},
         mpsc::{self, Sender},
-        OnceLock,
     },
     thread,
     time::Duration,
 };
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use rodio::{OutputStream, Source};
-use windows::{
-    Win32::{
-        Foundation::{HINSTANCE, LPARAM, LRESULT, WPARAM},
-        System::LibraryLoader::GetModuleHandleW,
-        UI::{
-            Input::KeyboardAndMouse::{VK_BACK, VK_ESCAPE, VK_RETURN, VK_SPACE, VK_TAB},
-            WindowsAndMessaging::{
-                CallNextHookEx, DispatchMessageW, GetMessageW, PostQuitMessage, SetWindowsHookExW,
-                TranslateMessage, UnhookWindowsHookEx, HHOOK, KBDLLHOOKSTRUCT, MSG,
-                WH_KEYBOARD_LL, WM_KEYDOWN, WM_SYSKEYDOWN,
-            },
+use windows::Win32::{
+    Foundation::{HINSTANCE, LPARAM, LRESULT, WPARAM},
+    System::LibraryLoader::GetModuleHandleW,
+    UI::{
+        Input::KeyboardAndMouse::{VK_BACK, VK_ESCAPE, VK_RETURN, VK_SPACE, VK_TAB},
+        WindowsAndMessaging::{
+            CallNextHookEx, DispatchMessageW, GetMessageW, HHOOK, KBDLLHOOKSTRUCT, MSG,
+            PostQuitMessage, SetWindowsHookExW, TranslateMessage, UnhookWindowsHookEx,
+            WH_KEYBOARD_LL, WM_KEYDOWN, WM_SYSKEYDOWN,
         },
     },
 };
@@ -172,7 +170,9 @@ fn main() -> Result<()> {
         settings.profile.name,
         settings.master_volume * 100.0
     );
-    println!("Privacy: only virtual-key codes are observed; typed text is never stored or transmitted.");
+    println!(
+        "Privacy: only virtual-key codes are observed; typed text is never stored or transmitted."
+    );
 
     let (tx, rx) = mpsc::channel::<KeyEvent>();
     KEY_EVENTS
@@ -215,9 +215,7 @@ impl Settings {
                         .next()
                         .ok_or_else(|| anyhow!("--profile requires a value"))?;
                     profile = Profile::named(&value).ok_or_else(|| {
-                        anyhow!(
-                            "unknown profile '{value}'. Use --help to list profiles"
-                        )
+                        anyhow!("unknown profile '{value}'. Use --help to list profiles")
                     })?;
                 }
                 "--volume" | "-v" => {
@@ -249,7 +247,8 @@ fn print_help() {
 }
 
 fn run_audio(rx: mpsc::Receiver<KeyEvent>, settings: Settings) -> Result<()> {
-    let (_stream, handle) = OutputStream::try_default().context("failed to open default audio output")?;
+    let (_stream, handle) =
+        OutputStream::try_default().context("failed to open default audio output")?;
 
     while RUNNING.load(Ordering::SeqCst) {
         let Ok(event) = rx.recv_timeout(Duration::from_millis(100)) else {
