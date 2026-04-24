@@ -1,4 +1,5 @@
 /target
+/dist
 *.out.txt
 *.err.txt
 *.log
