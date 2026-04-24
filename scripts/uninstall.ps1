@@ -10,9 +10,11 @@ $startMenuFolder = Join-Path $programs "Keyme"
 $paths = @(
     (Join-Path $desktop "Start Keyme.lnk"),
     (Join-Path $desktop "Stop Keyme.lnk"),
+    (Join-Path $desktop "Keyme.lnk"),
     (Join-Path $startup "Keyme.lnk"),
     (Join-Path $startMenuFolder "Start Keyme.lnk"),
-    (Join-Path $startMenuFolder "Stop Keyme.lnk")
+    (Join-Path $startMenuFolder "Stop Keyme.lnk"),
+    (Join-Path $startMenuFolder "Keyme.lnk")
 )
 
 foreach ($path in $paths) {

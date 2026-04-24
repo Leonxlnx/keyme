@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $startVbs = Join-Path $PSScriptRoot "launch-hidden.vbs"
 $stopVbs = Join-Path $PSScriptRoot "stop-hidden.vbs"
+$controlVbs = Join-Path $PSScriptRoot "control-hidden.vbs"
 
 Push-Location $root
 try {
@@ -35,6 +36,11 @@ function New-VbsShortcut {
 }
 
 New-VbsShortcut `
+    -Path (Join-Path $desktop "Keyme.lnk") `
+    -VbsPath $controlVbs `
+    -Description "Open Keyme settings"
+
+New-VbsShortcut `
     -Path (Join-Path $desktop "Start Keyme.lnk") `
     -VbsPath $startVbs `
     -Description "Start mechanical keyboard sounds"
@@ -50,6 +56,11 @@ New-VbsShortcut `
     -Description "Start mechanical keyboard sounds at login"
 
 New-VbsShortcut `
+    -Path (Join-Path $startMenuFolder "Keyme.lnk") `
+    -VbsPath $controlVbs `
+    -Description "Open Keyme settings"
+
+New-VbsShortcut `
     -Path (Join-Path $startMenuFolder "Start Keyme.lnk") `
     -VbsPath $startVbs `
     -Description "Start mechanical keyboard sounds"
@@ -60,5 +71,5 @@ New-VbsShortcut `
     -Description "Stop mechanical keyboard sounds"
 
 Write-Host "Installed Keyme."
-Write-Host "Desktop shortcuts: Start Keyme, Stop Keyme"
+Write-Host "Desktop shortcuts: Keyme, Start Keyme, Stop Keyme"
 Write-Host "Startup shortcut: Keyme"
