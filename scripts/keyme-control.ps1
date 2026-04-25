@@ -10,17 +10,20 @@ $configPath = Join-Path $configDir "config.json"
 $startupShortcut = Join-Path ([Environment]::GetFolderPath("Startup")) "Keyme.lnk"
 $launcher = Join-Path $PSScriptRoot "launch-hidden.vbs"
 $profiles = @(
-    "holy-panda",
-    "red",
-    "alps-blue",
-    "box-navy",
-    "topre",
-    "nk-cream",
-    "buckling-spring",
-    "ink-black",
-    "turquoise-tealios",
-    "alpaca",
-    "typewriter"
+    [pscustomobject]@{ Id = "holy-panda"; Label = "Holy Panda - tactile thock" },
+    [pscustomobject]@{ Id = "oil-king"; Label = "Oil King - deep linear" },
+    [pscustomobject]@{ Id = "topre"; Label = "Topre - soft dome" },
+    [pscustomobject]@{ Id = "box-jade"; Label = "Box Jade - crisp click" },
+    [pscustomobject]@{ Id = "silent-tactile"; Label = "Silent Tactile - muted" },
+    [pscustomobject]@{ Id = "ink-black"; Label = "Ink Black - low thock" },
+    [pscustomobject]@{ Id = "nk-cream"; Label = "NK Cream - smooth pop" },
+    [pscustomobject]@{ Id = "buckling-spring"; Label = "Buckling Spring - vintage" },
+    [pscustomobject]@{ Id = "mx-black"; Label = "MX Black - classic linear" },
+    [pscustomobject]@{ Id = "alps-blue"; Label = "Alps Blue - bright click" },
+    [pscustomobject]@{ Id = "ceramic"; Label = "Ceramic - clean clack" },
+    [pscustomobject]@{ Id = "terminal"; Label = "Terminal - retro board" },
+    [pscustomobject]@{ Id = "alpaca"; Label = "Alpaca - soft pop" },
+    [pscustomobject]@{ Id = "typewriter"; Label = "Typewriter - sharp strike" }
 )
 
 function Ensure-Config {
@@ -83,103 +86,115 @@ $config = Read-KeymeConfig
 
 $form = New-Object Windows.Forms.Form
 $form.Text = "Keyme"
-$form.Width = 460
-$form.Height = 430
+$form.Width = 520
+$form.Height = 500
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedSingle"
 $form.MaximizeBox = $false
-$form.BackColor = [Drawing.Color]::FromArgb(18, 22, 25)
-$form.ForeColor = [Drawing.Color]::White
+$form.BackColor = [Drawing.Color]::FromArgb(244, 239, 229)
+$form.ForeColor = [Drawing.Color]::FromArgb(30, 34, 34)
+
+$card = New-Object Windows.Forms.Panel
+$card.Location = New-Object Drawing.Point(24, 24)
+$card.Size = New-Object Drawing.Size(456, 400)
+$card.BackColor = [Drawing.Color]::FromArgb(255, 252, 245)
+$form.Controls.Add($card)
 
 $title = New-Object Windows.Forms.Label
 $title.Text = "Keyme"
-$title.Font = New-Object Drawing.Font("Segoe UI Variable Display", 24, [Drawing.FontStyle]::Bold)
-$title.Location = New-Object Drawing.Point(28, 22)
-$title.Size = New-Object Drawing.Size(390, 44)
-$form.Controls.Add($title)
+$title.Font = New-Object Drawing.Font("Segoe UI Variable Display", 28, [Drawing.FontStyle]::Bold)
+$title.Location = New-Object Drawing.Point(28, 24)
+$title.Size = New-Object Drawing.Size(260, 50)
+$card.Controls.Add($title)
 
 $subtitle = New-Object Windows.Forms.Label
-$subtitle.Text = "Mechanical keyboard sounds for Windows"
+$subtitle.Text = "Keyboard sounds for Windows"
 $subtitle.Font = New-Object Drawing.Font("Segoe UI", 10)
-$subtitle.ForeColor = [Drawing.Color]::FromArgb(174, 186, 194)
-$subtitle.Location = New-Object Drawing.Point(31, 67)
-$subtitle.Size = New-Object Drawing.Size(390, 24)
-$form.Controls.Add($subtitle)
+$subtitle.ForeColor = [Drawing.Color]::FromArgb(91, 101, 97)
+$subtitle.Location = New-Object Drawing.Point(31, 73)
+$subtitle.Size = New-Object Drawing.Size(300, 24)
+$card.Controls.Add($subtitle)
 
 $status = New-Object Windows.Forms.Label
 $status.Font = New-Object Drawing.Font("Segoe UI", 10, [Drawing.FontStyle]::Bold)
-$status.Location = New-Object Drawing.Point(31, 105)
+$status.Location = New-Object Drawing.Point(31, 116)
 $status.Size = New-Object Drawing.Size(390, 24)
-$form.Controls.Add($status)
+$card.Controls.Add($status)
 
 $profileLabel = New-Object Windows.Forms.Label
-$profileLabel.Text = "Sound profile"
-$profileLabel.Location = New-Object Drawing.Point(31, 148)
+$profileLabel.Text = "Sound"
+$profileLabel.Font = New-Object Drawing.Font("Segoe UI", 10, [Drawing.FontStyle]::Bold)
+$profileLabel.Location = New-Object Drawing.Point(31, 158)
 $profileLabel.Size = New-Object Drawing.Size(160, 22)
-$form.Controls.Add($profileLabel)
+$card.Controls.Add($profileLabel)
 
 $profileBox = New-Object Windows.Forms.ComboBox
 $profileBox.DropDownStyle = "DropDownList"
-$profileBox.Location = New-Object Drawing.Point(200, 145)
-$profileBox.Size = New-Object Drawing.Size(205, 24)
+$profileBox.Location = New-Object Drawing.Point(31, 184)
+$profileBox.Size = New-Object Drawing.Size(390, 28)
+$profileBox.DisplayMember = "Label"
+$profileBox.ValueMember = "Id"
 [void]$profileBox.Items.AddRange($profiles)
-$profileBox.SelectedItem = if ($profiles -contains $config.profile) { $config.profile } else { "holy-panda" }
-$form.Controls.Add($profileBox)
+$selectedProfile = $profiles | Where-Object { $_.Id -eq $config.profile } | Select-Object -First 1
+if (-not $selectedProfile) { $selectedProfile = $profiles[0] }
+$profileBox.SelectedItem = $selectedProfile
+$card.Controls.Add($profileBox)
 
 $volumeLabel = New-Object Windows.Forms.Label
 $volumeLabel.Text = "Volume: $($config.volume)%"
-$volumeLabel.Location = New-Object Drawing.Point(31, 196)
+$volumeLabel.Font = New-Object Drawing.Font("Segoe UI", 10, [Drawing.FontStyle]::Bold)
+$volumeLabel.Location = New-Object Drawing.Point(31, 236)
 $volumeLabel.Size = New-Object Drawing.Size(160, 22)
-$form.Controls.Add($volumeLabel)
+$card.Controls.Add($volumeLabel)
 
 $volumeSlider = New-Object Windows.Forms.TrackBar
 $volumeSlider.Minimum = 0
 $volumeSlider.Maximum = 100
 $volumeSlider.TickFrequency = 10
 $volumeSlider.Value = [Math]::Max(0, [Math]::Min(100, [int]$config.volume))
-$volumeSlider.Location = New-Object Drawing.Point(194, 187)
-$volumeSlider.Size = New-Object Drawing.Size(220, 45)
+$volumeSlider.Location = New-Object Drawing.Point(26, 262)
+$volumeSlider.Size = New-Object Drawing.Size(402, 45)
 $volumeSlider.Add_ValueChanged({ $volumeLabel.Text = "Volume: $($volumeSlider.Value)%" })
-$form.Controls.Add($volumeSlider)
+$card.Controls.Add($volumeSlider)
 
 $autostart = New-Object Windows.Forms.CheckBox
-$autostart.Text = "Start Keyme automatically after login"
+$autostart.Text = "Start automatically with Windows"
 $autostart.Checked = [bool]$config.autostart
-$autostart.Location = New-Object Drawing.Point(31, 245)
+$autostart.Location = New-Object Drawing.Point(31, 315)
 $autostart.Size = New-Object Drawing.Size(360, 26)
-$autostart.ForeColor = [Drawing.Color]::White
-$form.Controls.Add($autostart)
+$autostart.ForeColor = [Drawing.Color]::FromArgb(30, 34, 34)
+$card.Controls.Add($autostart)
 
 $saveButton = New-Object Windows.Forms.Button
-$saveButton.Text = "Save"
-$saveButton.Location = New-Object Drawing.Point(31, 298)
-$saveButton.Size = New-Object Drawing.Size(82, 36)
-$form.Controls.Add($saveButton)
+$saveButton.Text = "Apply"
+$saveButton.Location = New-Object Drawing.Point(31, 354)
+$saveButton.Size = New-Object Drawing.Size(90, 34)
+$card.Controls.Add($saveButton)
 
 $startButton = New-Object Windows.Forms.Button
-$startButton.Text = "Start / Restart"
-$startButton.Location = New-Object Drawing.Point(126, 298)
-$startButton.Size = New-Object Drawing.Size(116, 36)
-$form.Controls.Add($startButton)
+$startButton.Text = "Restart sound"
+$startButton.Location = New-Object Drawing.Point(135, 354)
+$startButton.Size = New-Object Drawing.Size(120, 34)
+$card.Controls.Add($startButton)
 
 $stopButton = New-Object Windows.Forms.Button
 $stopButton.Text = "Stop"
-$stopButton.Location = New-Object Drawing.Point(255, 298)
-$stopButton.Size = New-Object Drawing.Size(72, 36)
-$form.Controls.Add($stopButton)
+$stopButton.Location = New-Object Drawing.Point(269, 354)
+$stopButton.Size = New-Object Drawing.Size(70, 34)
+$card.Controls.Add($stopButton)
 
 $openConfigButton = New-Object Windows.Forms.Button
-$openConfigButton.Text = "Config"
-$openConfigButton.Location = New-Object Drawing.Point(340, 298)
+$openConfigButton.Text = "File"
+$openConfigButton.Location = New-Object Drawing.Point(353, 354)
 $openConfigButton.Size = New-Object Drawing.Size(72, 36)
-$form.Controls.Add($openConfigButton)
+$card.Controls.Add($openConfigButton)
 
 $privacy = New-Object Windows.Forms.Label
-$privacy.Text = "Privacy: Keyme observes virtual-key codes only. It does not store typed text or use the network."
+$privacy.Text = "Local only. No telemetry. No typed text is stored."
 $privacy.Font = New-Object Drawing.Font("Segoe UI", 8.5)
-$privacy.ForeColor = [Drawing.Color]::FromArgb(140, 152, 160)
-$privacy.Location = New-Object Drawing.Point(31, 352)
-$privacy.Size = New-Object Drawing.Size(390, 34)
+$privacy.ForeColor = [Drawing.Color]::FromArgb(91, 101, 97)
+$privacy.Location = New-Object Drawing.Point(31, 430)
+$privacy.Size = New-Object Drawing.Size(420, 24)
 $form.Controls.Add($privacy)
 
 function Refresh-Status {
@@ -194,7 +209,7 @@ function Refresh-Status {
 }
 
 function Save-CurrentSettings {
-    Write-KeymeConfig -Profile $profileBox.SelectedItem -Volume $volumeSlider.Value -Autostart $autostart.Checked
+    Write-KeymeConfig -Profile $profileBox.SelectedItem.Id -Volume $volumeSlider.Value -Autostart $autostart.Checked
     Set-KeymeAutostart -Enabled $autostart.Checked
 }
 
