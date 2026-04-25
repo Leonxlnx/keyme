@@ -116,6 +116,11 @@ if (-not (Get-Process -Name "keyme" -ErrorAction SilentlyContinue)) {
     Start-Process -FilePath "$env:WINDIR\System32\wscript.exe" -ArgumentList "`"$startVbs`""
 }
 
+if (-not (Get-Process -Name "keyme" -ErrorAction SilentlyContinue)) {
+    $delayedLaunch = "timeout /t 2 /nobreak >nul & wscript.exe `"$startVbs`""
+    Start-Process -FilePath $env:ComSpec -ArgumentList @("/c", $delayedLaunch) -WindowStyle Hidden
+}
+
 Write-Host "Installed Keyme."
 Write-Host "Install folder: $installDir"
 Write-Host "Desktop shortcut: Keyme"
