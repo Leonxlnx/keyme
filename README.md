@@ -39,7 +39,6 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\install.ps1
 The installer copies Keyme to `%LOCALAPPDATA%\Keyme` and creates:
 
 - `Keyme` desktop shortcut for the settings app.
-- `Start Keyme` and `Stop Keyme` desktop shortcuts.
 - Start Menu shortcuts under `Keyme`.
 - A Startup shortcut so Keyme runs after login.
 
