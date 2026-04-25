@@ -1,6 +1,7 @@
 use std::{
     env,
     f32::consts::TAU,
+    io::{self, Write},
     sync::{
         OnceLock,
         atomic::{AtomicBool, Ordering},
@@ -225,12 +226,14 @@ impl Profile {
 
 fn main() -> Result<()> {
     let settings = Settings::from_args()?;
-    println!(
+    let _ = writeln!(
+        io::stdout(),
         "Keyme running. profile={}, volume={:.0}%. Press Ctrl+C to quit.",
         settings.profile.name,
         settings.master_volume * 100.0
     );
-    println!(
+    let _ = writeln!(
+        io::stdout(),
         "Privacy: only virtual-key codes are observed; typed text is never stored or transmitted."
     );
 
