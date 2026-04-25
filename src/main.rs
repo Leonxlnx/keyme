@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 use std::{
     env,
     f32::consts::TAU,
@@ -228,7 +230,7 @@ fn main() -> Result<()> {
     let settings = Settings::from_args()?;
     let _ = writeln!(
         io::stdout(),
-        "Keyme running. profile={}, volume={:.0}%. Press Ctrl+C to quit.",
+        "Takt running. profile={}, volume={:.0}%. Press Ctrl+C to quit.",
         settings.profile.name,
         settings.master_volume * 100.0
     );
@@ -305,7 +307,7 @@ impl Settings {
 
 fn print_help() {
     println!(
-        "Usage: keyme [--profile holy-panda] [--volume 75]\n\nProfiles: red, holy-panda, alps-blue, box-navy, topre, nk-cream, buckling-spring, ink-black, turquoise-tealios, alpaca, typewriter, oil-king, mx-black, box-jade, silent-tactile, ceramic, terminal"
+        "Usage: takt [--profile holy-panda] [--volume 75]\n\nProfiles: red, holy-panda, alps-blue, box-navy, topre, nk-cream, buckling-spring, ink-black, turquoise-tealios, alpaca, typewriter, oil-king, mx-black, box-jade, silent-tactile, ceramic, terminal"
     );
 }
 
