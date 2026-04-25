@@ -158,6 +158,66 @@ impl Profile {
                 noise: 0.26,
                 volume: 0.27,
             }),
+            "oil-king" | "oil" => Some(Self {
+                name: "oil-king",
+                body_hz: 82.0,
+                click_hz: 610.0,
+                duration_ms: 82,
+                body_decay: 32.0,
+                click_decay: 122.0,
+                noise: 0.035,
+                volume: 0.38,
+            }),
+            "mx-black" | "black" => Some(Self {
+                name: "mx-black",
+                body_hz: 104.0,
+                click_hz: 790.0,
+                duration_ms: 62,
+                body_decay: 50.0,
+                click_decay: 132.0,
+                noise: 0.045,
+                volume: 0.34,
+            }),
+            "box-jade" | "jade" => Some(Self {
+                name: "box-jade",
+                body_hz: 176.0,
+                click_hz: 2850.0,
+                duration_ms: 76,
+                body_decay: 38.0,
+                click_decay: 66.0,
+                noise: 0.20,
+                volume: 0.31,
+            }),
+            "silent-tactile" | "silent" => Some(Self {
+                name: "silent-tactile",
+                body_hz: 72.0,
+                click_hz: 520.0,
+                duration_ms: 46,
+                body_decay: 74.0,
+                click_decay: 190.0,
+                noise: 0.018,
+                volume: 0.36,
+            }),
+            "ceramic" => Some(Self {
+                name: "ceramic",
+                body_hz: 196.0,
+                click_hz: 1720.0,
+                duration_ms: 68,
+                body_decay: 48.0,
+                click_decay: 84.0,
+                noise: 0.07,
+                volume: 0.33,
+            }),
+            "terminal" => Some(Self {
+                name: "terminal",
+                body_hz: 154.0,
+                click_hz: 2450.0,
+                duration_ms: 92,
+                body_decay: 28.0,
+                click_decay: 74.0,
+                noise: 0.18,
+                volume: 0.29,
+            }),
             _ => None,
         }
     }
@@ -223,7 +283,7 @@ impl Settings {
                         .next()
                         .ok_or_else(|| anyhow!("--volume requires a value from 0 to 100"))?;
                     let parsed = value.parse::<f32>().context("volume must be a number")?;
-                    master_volume = (parsed / 100.0).clamp(0.0, 1.0);
+                    master_volume = volume_to_gain(parsed);
                 }
                 "--help" | "-h" => {
                     print_help();
@@ -242,8 +302,17 @@ impl Settings {
 
 fn print_help() {
     println!(
-        "Usage: keyme [--profile holy-panda] [--volume 75]\n\nProfiles: red, holy-panda, alps-blue, box-navy, topre, nk-cream, buckling-spring, ink-black, turquoise-tealios, alpaca, typewriter"
+        "Usage: keyme [--profile holy-panda] [--volume 75]\n\nProfiles: red, holy-panda, alps-blue, box-navy, topre, nk-cream, buckling-spring, ink-black, turquoise-tealios, alpaca, typewriter, oil-king, mx-black, box-jade, silent-tactile, ceramic, terminal"
     );
+}
+
+fn volume_to_gain(percent: f32) -> f32 {
+    let normalized = (percent / 100.0).clamp(0.0, 1.0);
+    if normalized <= 0.0 {
+        0.0
+    } else {
+        0.08 + normalized.powf(0.72) * 0.92
+    }
 }
 
 fn run_audio(rx: mpsc::Receiver<KeyEvent>, settings: Settings) -> Result<()> {
@@ -367,10 +436,22 @@ impl SwitchSource {
         let t = self.frame as f32 / self.sample_rate as f32;
         let body_env = (-self.profile.body_decay * t).exp();
         let click_env = (-self.profile.click_decay * t).exp();
-        let body = (TAU * self.profile.body_hz * self.pitch * t).sin() * body_env;
-        let click = (TAU * self.profile.click_hz * self.pitch * t).sin() * click_env;
+        let body_hz = self.profile.body_hz * self.pitch;
+        let click_hz = self.profile.click_hz * self.pitch;
+        let body = ((TAU * body_hz * t).sin()
+            + (TAU * body_hz * 2.03 * t).sin() * 0.38
+            + (TAU * body_hz * 3.07 * t).sin() * 0.16)
+            * body_env;
+        let click = ((TAU * click_hz * t).sin()
+            + (TAU * click_hz * 1.51 * t).sin() * 0.24
+            + (TAU * click_hz * 2.18 * t).sin() * 0.10)
+            * click_env;
+        let bottom_out = (TAU * (body_hz * 0.52) * t).sin() * (-95.0 * (t - 0.012).max(0.0)).exp();
         let noise = self.noise() * self.profile.noise * click_env;
-        (body * 0.72 + click * 0.28 + noise) * self.profile.volume * self.master_volume
+        let sample = (body * 0.62 + click * 0.25 + bottom_out * 0.18 + noise)
+            * self.profile.volume
+            * self.master_volume;
+        soft_clip(sample)
     }
 
     fn noise(&mut self) -> f32 {
@@ -379,6 +460,10 @@ impl SwitchSource {
         self.seed ^= self.seed << 5;
         (self.seed as f32 / u32::MAX as f32) * 2.0 - 1.0
     }
+}
+
+fn soft_clip(sample: f32) -> f32 {
+    (sample * 1.8).tanh() * 0.62
 }
 
 impl Iterator for SwitchSource {
