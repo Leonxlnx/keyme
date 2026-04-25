@@ -1,9 +1,5 @@
 # Takt
 
-![Takt logo](assets/logo.svg)
-
-![Takt Windows app screenshot](assets/screenshot.svg)
-
 Mechanical keyboard sounds for Windows.
 
 Takt is a small Windows utility that adds satisfying switch-style audio to every key press. It runs locally, starts with Windows if you want it to, and includes a native settings app for choosing sounds and volume.
