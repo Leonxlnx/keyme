@@ -1,20 +1,14 @@
 <svg width="960" height="540" viewBox="0 0 960 540" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="960" height="540" fill="#0D1113"/>
-  <rect x="250" y="70" width="460" height="400" rx="18" fill="#121619" stroke="#2C3940" stroke-width="2"/>
-  <text x="292" y="130" fill="#F4F7F8" font-family="Segoe UI, Arial" font-size="44" font-weight="700">Keyme</text>
-  <text x="294" y="164" fill="#AEBAC2" font-family="Segoe UI, Arial" font-size="18">Mechanical keyboard sounds for Windows</text>
-  <text x="294" y="222" fill="#50DC96" font-family="Segoe UI, Arial" font-size="18" font-weight="700">Status: running</text>
-  <text x="294" y="280" fill="#F4F7F8" font-family="Segoe UI, Arial" font-size="18">Sound profile</text>
-  <rect x="474" y="256" width="188" height="34" rx="8" fill="#1E272C" stroke="#9DEBC7"/>
-  <text x="492" y="279" fill="#F4F7F8" font-family="Segoe UI, Arial" font-size="16">holy-panda</text>
-  <text x="294" y="342" fill="#F4F7F8" font-family="Segoe UI, Arial" font-size="18">Volume: 75%</text>
-  <rect x="474" y="330" width="188" height="8" rx="4" fill="#2C3940"/>
-  <rect x="474" y="330" width="142" height="8" rx="4" fill="#F8D66D"/>
-  <circle cx="616" cy="334" r="12" fill="#F8D66D"/>
-  <rect x="294" y="392" width="76" height="34" rx="8" fill="#9DEBC7"/>
-  <text x="318" y="414" fill="#121619" font-family="Segoe UI, Arial" font-size="15" font-weight="700">Save</text>
-  <rect x="386" y="392" width="132" height="34" rx="8" fill="#E8F1F2"/>
-  <text x="408" y="414" fill="#121619" font-family="Segoe UI, Arial" font-size="15" font-weight="700">Start / Restart</text>
-  <rect x="534" y="392" width="76" height="34" rx="8" fill="#F8D66D"/>
-  <text x="558" y="414" fill="#121619" font-family="Segoe UI, Arial" font-size="15" font-weight="700">Stop</text>
+  <rect width="960" height="540" fill="#E9DFCE"/>
+  <rect x="240" y="60" width="480" height="420" rx="26" fill="#FFFCF5"/>
+  <text x="296" y="136" fill="#1E2222" font-family="Segoe UI, Arial" font-size="52" font-weight="700">Keyme</text>
+  <text x="298" y="174" fill="#5B6561" font-family="Segoe UI, Arial" font-size="18">Keyboard sounds for Windows</text>
+  <text x="298" y="238" fill="#2F7D57" font-family="Segoe UI, Arial" font-size="18" font-weight="700">Status: running</text>
+  <text x="298" y="296" fill="#1E2222" font-family="Segoe UI, Arial" font-size="18" font-weight="700">Sound</text>
+  <rect x="298" y="316" width="364" height="38" rx="9" fill="#F4EFE5" stroke="#D8C7A8"/>
+  <text x="318" y="341" fill="#1E2222" font-family="Segoe UI, Arial" font-size="16">Oil King - deep linear</text>
+  <text x="298" y="394" fill="#1E2222" font-family="Segoe UI, Arial" font-size="18" font-weight="700">Volume: 65%</text>
+  <rect x="426" y="405" width="236" height="8" rx="4" fill="#D8C7A8"/>
+  <rect x="426" y="405" width="154" height="8" rx="4" fill="#D88B5B"/>
+  <circle cx="580" cy="409" r="12" fill="#D88B5B"/>
 </svg>
