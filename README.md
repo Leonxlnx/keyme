@@ -14,13 +14,13 @@ Keyme is a small Windows utility that adds satisfying switch-style audio to ever
 - Low-latency audio playback through your default Windows output.
 - Stereo panning based on approximate key position.
 - Per-key pitch variation so typing feels less repetitive.
-- 11 built-in synthesized switch profiles.
+- 17 built-in synthesized switch profiles.
 - Small settings UI for profile, volume, status, and autostart.
 - Local-first privacy model with no telemetry and no network calls.
 
 ## Sound Profiles
 
-Keyme includes 11 procedural profiles from soft thock to loud vintage click. See [docs/profiles.md](docs/profiles.md).
+Keyme includes 17 procedural profiles from soft thock to loud vintage click. See [docs/profiles.md](docs/profiles.md).
 
 ## Install
 
@@ -42,6 +42,8 @@ The installer copies Keyme to `%LOCALAPPDATA%\Keyme` and creates:
 - Start Menu shortcuts under `Keyme`.
 - A Startup shortcut so Keyme runs after login.
 
+See [docs/windows-install.md](docs/windows-install.md) for details.
+
 ## Use
 
 Open the `Keyme` desktop shortcut to change the profile, volume, or autostart setting.
@@ -58,7 +60,7 @@ cargo run --release -- --profile holy-panda --volume 75
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1
 ```
 
-This stops Keyme and removes the shortcuts. It does not delete the source folder.
+This stops Keyme and removes the installed app. It does not delete a cloned source folder.
 
 ## Privacy
 

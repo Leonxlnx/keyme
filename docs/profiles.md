@@ -15,3 +15,11 @@ Keyme's built-in profiles are procedural approximations. They are designed to cr
 | `turquoise-tealios` | clean polished linear |
 | `alpaca` | soft pop |
 | `typewriter` | sharp retro strike |
+| `oil-king` | deep linear thock |
+| `mx-black` | classic weighted linear |
+| `box-jade` | sharp clickbar-style click |
+| `silent-tactile` | quiet muted tactile |
+| `ceramic` | clean bright clack |
+| `terminal` | retro terminal board |
+
+These profiles are synthesized, not sampled. That keeps the project redistributable and avoids copying sounds from commercial apps. Future recorded packs should live in `sounds/` with clear licensing.
