@@ -28,5 +28,6 @@ foreach ($path in $paths) {
 Remove-Item $startMenuFolder -ErrorAction SilentlyContinue
 Remove-Item $legacyStartMenuFolder -Recurse -ErrorAction SilentlyContinue
 Remove-Item (Join-Path $env:LOCALAPPDATA "Keyme") -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item (Join-Path $env:APPDATA "Keyme") -Recurse -Force -ErrorAction SilentlyContinue
 
-Write-Host "Removed Keyme shortcuts and stopped the app."
+Write-Host "Removed Keyme shortcuts, settings, and installed app files."
