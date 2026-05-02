@@ -1,3 +1,4 @@
+const mode = document.querySelector('#mode');
 const profile = document.querySelector('#profile');
 const volume = document.querySelector('#volume');
 const volumeValue = document.querySelector('#volumeValue');
@@ -8,8 +9,13 @@ const restart = document.querySelector('#restart');
 const stop = document.querySelector('#stop');
 const openConfig = document.querySelector('#openConfig');
 const profileHint = document.querySelector('#profileHint');
+const modeHint = document.querySelector('#modeHint');
 
 const hints = {
+  'clean-muted': 'Quiet, short, and rounded. Closest to the usable muted sound.',
+  'clean-thock': 'Low, clean thock without harsh click noise.',
+  'soft-linear': 'Light smooth key sound with minimal texture.',
+  'studio-pop': 'Cleaner, brighter key sound that cuts through more.',
   'holy-panda': 'Rounded tactile thock with a clean bottom-out.',
   'oil-king': 'Deep, damped linear profile for a premium muted feel.',
   topre: 'Soft dome character with a low, rounded return.',
@@ -28,6 +34,7 @@ const hints = {
 
 function readForm() {
   return {
+    mode: mode.value,
     profile: profile.value,
     volume: Number(volume.value),
     autostart: autostart.checked
@@ -35,11 +42,13 @@ function readForm() {
 }
 
 function writeForm(config) {
-  profile.value = config.profile || 'holy-panda';
+  mode.value = config.mode || 'keys';
+  profile.value = config.profile || 'clean-muted';
   volume.value = config.volume ?? 65;
   volumeValue.textContent = `${volume.value}%`;
   autostart.checked = Boolean(config.autostart);
-  profileHint.textContent = hints[profile.value] || hints['holy-panda'];
+  profileHint.textContent = hints[profile.value] || hints['clean-muted'];
+  updateModeUi();
 }
 
 async function refreshStatus() {
@@ -55,6 +64,19 @@ volume.addEventListener('input', () => {
 profile.addEventListener('change', () => {
   profileHint.textContent = hints[profile.value] || hints['holy-panda'];
 });
+
+mode.addEventListener('change', updateModeUi);
+
+function updateModeUi() {
+  const melody = mode.value === 'melody';
+  modeHint.textContent = melody
+    ? 'Each keypress advances an original pop-style melody note. It loops forever.'
+    : 'Short clean mechanical sounds on each keypress.';
+  profile.disabled = melody;
+  profileHint.textContent = melody
+    ? 'Profile is ignored in melody mode.'
+    : hints[profile.value] || hints['clean-muted'];
+}
 
 apply.addEventListener('click', async () => {
   await window.takt.writeConfig(readForm());

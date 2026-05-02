@@ -36,6 +36,22 @@ struct KeyEvent {
     vk_code: u32,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum SoundMode {
+    Keys,
+    Melody,
+}
+
+impl SoundMode {
+    fn named(name: &str) -> Option<Self> {
+        match name.to_ascii_lowercase().as_str() {
+            "keys" | "switch" | "switches" => Some(Self::Keys),
+            "melody" | "song" | "tones" => Some(Self::Melody),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Clone, Copy)]
 struct Profile {
     name: &'static str,
@@ -51,6 +67,46 @@ struct Profile {
 impl Profile {
     fn named(name: &str) -> Option<Self> {
         match name.to_ascii_lowercase().as_str() {
+            "clean-muted" | "muted" => Some(Self {
+                name: "clean-muted",
+                body_hz: 78.0,
+                click_hz: 470.0,
+                duration_ms: 50,
+                body_decay: 66.0,
+                click_decay: 185.0,
+                noise: 0.012,
+                volume: 0.48,
+            }),
+            "clean-thock" | "thock" => Some(Self {
+                name: "clean-thock",
+                body_hz: 92.0,
+                click_hz: 560.0,
+                duration_ms: 64,
+                body_decay: 50.0,
+                click_decay: 160.0,
+                noise: 0.016,
+                volume: 0.46,
+            }),
+            "soft-linear" | "linear" => Some(Self {
+                name: "soft-linear",
+                body_hz: 112.0,
+                click_hz: 690.0,
+                duration_ms: 46,
+                body_decay: 78.0,
+                click_decay: 170.0,
+                noise: 0.010,
+                volume: 0.42,
+            }),
+            "studio-pop" | "pop" => Some(Self {
+                name: "studio-pop",
+                body_hz: 136.0,
+                click_hz: 820.0,
+                duration_ms: 42,
+                body_decay: 86.0,
+                click_decay: 155.0,
+                noise: 0.008,
+                volume: 0.40,
+            }),
             "red" | "gateron-red" => Some(Self {
                 name: "gateron-red",
                 body_hz: 165.0,
@@ -263,13 +319,15 @@ fn main() -> Result<()> {
 
 #[derive(Clone, Copy)]
 struct Settings {
+    mode: SoundMode,
     profile: Profile,
     master_volume: f32,
 }
 
 impl Settings {
     fn from_args() -> Result<Self> {
-        let mut profile = Profile::named("holy-panda").unwrap();
+        let mut mode = SoundMode::Keys;
+        let mut profile = Profile::named("clean-muted").unwrap();
         let mut master_volume = 0.75;
         let mut args = env::args().skip(1);
 
@@ -290,6 +348,13 @@ impl Settings {
                     let parsed = value.parse::<f32>().context("volume must be a number")?;
                     master_volume = volume_to_gain(parsed);
                 }
+                "--mode" | "-m" => {
+                    let value = args
+                        .next()
+                        .ok_or_else(|| anyhow!("--mode requires keys or melody"))?;
+                    mode = SoundMode::named(&value)
+                        .ok_or_else(|| anyhow!("unknown mode '{value}'. Try keys or melody"))?;
+                }
                 "--help" | "-h" => {
                     print_help();
                     std::process::exit(0);
@@ -299,6 +364,7 @@ impl Settings {
         }
 
         Ok(Self {
+            mode,
             profile,
             master_volume,
         })
@@ -307,7 +373,7 @@ impl Settings {
 
 fn print_help() {
     println!(
-        "Usage: takt [--profile holy-panda] [--volume 75]\n\nProfiles: red, holy-panda, alps-blue, box-navy, topre, nk-cream, buckling-spring, ink-black, turquoise-tealios, alpaca, typewriter, oil-king, mx-black, box-jade, silent-tactile, ceramic, terminal"
+        "Usage: takt [--mode keys|melody] [--profile clean-muted] [--volume 75]\n\nClean profiles: clean-muted, clean-thock, soft-linear, studio-pop, silent-tactile"
     );
 }
 
@@ -323,6 +389,7 @@ fn volume_to_gain(percent: f32) -> f32 {
 fn run_audio(rx: mpsc::Receiver<KeyEvent>, settings: Settings) -> Result<()> {
     let (_stream, handle) =
         OutputStream::try_default().context("failed to open default audio output")?;
+    let mut melody_step = 0usize;
 
     while RUNNING.load(Ordering::SeqCst) {
         let Ok(event) = rx.recv_timeout(Duration::from_millis(100)) else {
@@ -330,9 +397,19 @@ fn run_audio(rx: mpsc::Receiver<KeyEvent>, settings: Settings) -> Result<()> {
         };
 
         let pan = key_pan(event.vk_code);
-        let pitch = pitch_variation(event.vk_code);
-        let source = SwitchSource::new(settings.profile, settings.master_volume, pan, pitch);
-        handle.play_raw(source.convert_samples())?;
+        match settings.mode {
+            SoundMode::Keys => {
+                let pitch = pitch_variation(event.vk_code);
+                let source =
+                    SwitchSource::new(settings.profile, settings.master_volume, pan, pitch);
+                handle.play_raw(source.convert_samples())?;
+            }
+            SoundMode::Melody => {
+                let source = MelodySource::new(melody_step, settings.master_volume, pan);
+                melody_step = melody_step.wrapping_add(1);
+                handle.play_raw(source.convert_samples())?;
+            }
+        }
     }
 
     Ok(())
@@ -469,6 +546,94 @@ impl SwitchSource {
 
 fn soft_clip(sample: f32) -> f32 {
     (sample * 1.45).tanh() * 0.96
+}
+
+const POP_MELODY: [f32; 32] = [
+    523.25, 659.25, 783.99, 659.25, 587.33, 659.25, 783.99, 987.77, 880.0, 783.99, 659.25, 587.33,
+    523.25, 587.33, 659.25, 783.99, 392.0, 493.88, 587.33, 659.25, 587.33, 493.88, 440.0, 493.88,
+    523.25, 659.25, 783.99, 1046.5, 987.77, 783.99, 659.25, 523.25,
+];
+
+struct MelodySource {
+    sample_rate: u32,
+    total_frames: u32,
+    frame: u32,
+    channel: u16,
+    frequency: f32,
+    pan: f32,
+    master_volume: f32,
+}
+
+impl MelodySource {
+    fn new(step: usize, master_volume: f32, pan: f32) -> Self {
+        let sample_rate = 48_000;
+        let total_frames = (sample_rate as f32 * 0.18) as u32;
+        Self {
+            sample_rate,
+            total_frames,
+            frame: 0,
+            channel: 0,
+            frequency: POP_MELODY[step % POP_MELODY.len()],
+            pan,
+            master_volume,
+        }
+    }
+
+    fn mono_sample(&self) -> f32 {
+        let t = self.frame as f32 / self.sample_rate as f32;
+        let attack = (t / 0.012).clamp(0.0, 1.0);
+        let decay = (-8.5 * t).exp();
+        let env = attack * decay;
+        let fundamental = (TAU * self.frequency * t).sin();
+        let octave = (TAU * self.frequency * 2.0 * t).sin() * 0.20;
+        let fifth = (TAU * self.frequency * 1.5 * t).sin() * 0.12;
+        soft_clip((fundamental + octave + fifth) * env * self.master_volume * 0.34)
+    }
+}
+
+impl Iterator for MelodySource {
+    type Item = f32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.frame >= self.total_frames {
+            return None;
+        }
+
+        let mono = self.mono_sample();
+        let left_gain = ((1.0 - self.pan) * 0.5).sqrt();
+        let right_gain = ((1.0 + self.pan) * 0.5).sqrt();
+        let sample = if self.channel == 0 {
+            mono * left_gain
+        } else {
+            mono * right_gain
+        };
+
+        self.channel += 1;
+        if self.channel == 2 {
+            self.channel = 0;
+            self.frame += 1;
+        }
+
+        Some(sample)
+    }
+}
+
+impl Source for MelodySource {
+    fn current_frame_len(&self) -> Option<usize> {
+        Some(((self.total_frames - self.frame) * 2 - self.channel as u32) as usize)
+    }
+
+    fn channels(&self) -> u16 {
+        2
+    }
+
+    fn sample_rate(&self) -> u32 {
+        self.sample_rate
+    }
+
+    fn total_duration(&self) -> Option<Duration> {
+        Some(Duration::from_millis(180))
+    }
 }
 
 impl Iterator for SwitchSource {

@@ -23,6 +23,7 @@ if (-not (Test-Path $configPath)) {
 }
 
 $config = Get-Content $configPath -Raw | ConvertFrom-Json
+$Mode = if ($config.mode) { $config.mode } else { "keys" }
 if ([string]::IsNullOrWhiteSpace($Profile)) {
     $Profile = $config.profile
 }
@@ -45,4 +46,4 @@ if ($existing) {
     exit 0
 }
 
-Start-Process -FilePath $exe -ArgumentList @("--profile", $Profile, "--volume", "$Volume") -WindowStyle Hidden
+Start-Process -FilePath $exe -ArgumentList @("--mode", $Mode, "--profile", $Profile, "--volume", "$Volume") -WindowStyle Hidden

@@ -1,5 +1,6 @@
 {
-  "profile": "holy-panda",
+  "mode": "keys",
+  "profile": "clean-muted",
   "volume": 65,
   "autostart": true
 }

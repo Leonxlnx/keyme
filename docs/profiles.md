@@ -5,6 +5,10 @@ Takt's built-in profiles are procedural approximations. They are designed to cre
 | Profile | Character |
 | --- | --- |
 | `holy-panda` | rounded tactile thock |
+| `clean-muted` | short muted tactile |
+| `clean-thock` | low clean thock |
+| `soft-linear` | light smooth linear |
+| `studio-pop` | brighter clean key pop |
 | `red` | light linear clack |
 | `alps-blue` | crisp click |
 | `box-navy` | heavy click |
@@ -23,3 +27,7 @@ Takt's built-in profiles are procedural approximations. They are designed to cre
 | `terminal` | retro terminal board |
 
 These profiles are synthesized, not sampled. That keeps the project redistributable and avoids copying sounds from commercial apps. Future recorded packs should live in `sounds/` with clear licensing.
+
+## Melody Mode
+
+Melody mode ignores the switch profile and advances an original pop-style note sequence on every keypress. The sequence loops indefinitely.
